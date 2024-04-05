@@ -1,0 +1,4 @@
+github.com/cristalhq/appx v0.6.1 h1:wMFtiZFhVH0miD1r/jG3kT/XM1xA3PUNEyl6gLgRO1Y=
+github.com/cristalhq/appx v0.6.1/go.mod h1:RA36Oj1ljPAklLy+8OmX20kTuU1fmCahkCZ6Wl54iNU=
+github.com/cristalhq/synx v0.8.0 h1:PUTf+FNvV8+zAAigerJ7NgbSbZrYaV8KXel8ObOKaGI=
+github.com/cristalhq/synx v0.8.0/go.mod h1:4zlK+yL0q2Y/ggTVQR/MUzWiV4XQ9ewqLQExX+M1czw=
