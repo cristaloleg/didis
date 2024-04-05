@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"net"
 
 	"github.com/cristaloleg/didis/internal/core"
 
@@ -12,8 +14,10 @@ type Server struct {
 	cfg Config
 	db  core.Store
 
-	mux *redcon.ServeMux
-	srv *redcon.Server
+	addr string
+	ln   net.Listener
+	mux  *redcon.ServeMux
+	srv  *redcon.Server
 }
 
 type Config struct {
@@ -28,25 +32,33 @@ func New(cfg Config) (*Server, error) {
 		db:  cfg.Store,
 	}
 
-	s.mux = s.makeMux()
+	var err error
+	s.ln, err = net.Listen("tcp", s.cfg.Addr)
+	if err != nil {
+		return nil, fmt.Errorf("listen: %w", err)
+	}
+	s.addr = s.ln.Addr().String()
 
 	s.srv = redcon.NewServer(
 		s.cfg.Addr,
-		s.mux.ServeRESP,
+		s.makeMux().ServeRESP,
 		s.onAccept,
 		s.onClosed,
 	)
+
 	return s, nil
 }
 
 func (s *Server) Run(ctx context.Context) error {
 	go func() {
-		s.srv.ListenAndServe()
+		s.srv.Serve(s.ln)
 	}()
 
 	<-ctx.Done()
-	err := s.srv.Close()
-	return err
+	if err := s.ln.Close(); err != nil {
+		return fmt.Errorf("listen close: %w", err)
+	}
+	return nil
 }
 
 func (s *Server) onAccept(conn redcon.Conn) bool {

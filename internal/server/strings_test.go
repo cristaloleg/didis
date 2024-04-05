@@ -426,7 +426,7 @@ func testServer(tb testing.TB) string {
 	// wait a bit for server to start in a goroutine.
 	time.Sleep(100 * time.Millisecond)
 
-	return srv.srv.Addr().String()
+	return srv.addr
 }
 
 func testClient(tb testing.TB, addr string) *redis.Client {
