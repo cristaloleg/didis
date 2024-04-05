@@ -1,0 +1,13 @@
+# dirs
+.didis
+.vscode
+.tmp
+vendor
+
+# files
+lint.txt
+coverage.txt
+dump.rdb
+
+# patterns
+**/*.exec

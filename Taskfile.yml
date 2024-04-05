@@ -1,0 +1,36 @@
+# https://taskfile.dev
+version: '3'
+
+env:
+  CGO_ENABLED: 0
+
+vars:
+  BUILD_ARGS: -trimpath -ldflags=-buildid=
+
+tasks:
+  default:
+    desc: show this help
+    cmds:
+      - task --list-all
+    silent: true
+
+  make:
+    desc: build server binary
+    cmds:
+      - go build -o didis.exec {{ .BUILD_ARGS }} .
+
+  build:
+    desc: build all packages
+    cmds:
+      - go build {{ .BUILD_ARGS }} ./...
+
+  test:
+    desc: test all packages
+    cmds:
+      - go test -v -shuffle=on -race -count=1 -coverprofile=coverage.txt ./...
+
+  run:
+    desc: make and run server
+    cmds:
+      - task: make
+      - ./didis.exec
