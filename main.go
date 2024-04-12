@@ -10,6 +10,7 @@ import (
 
 	"github.com/cristaloleg/didis/internal/core"
 	"github.com/cristaloleg/didis/internal/inmem"
+	"github.com/cristaloleg/didis/internal/ondisk"
 	"github.com/cristaloleg/didis/internal/server"
 
 	"github.com/cristalhq/appx"
@@ -17,7 +18,10 @@ import (
 )
 
 type Config struct {
-	Port int `json:"port" yaml:"port"`
+	Port   int    `json:"port" yaml:"port"`
+	Inmem  bool   `json:"inmem" yaml:"inmem"`
+	Dir    string `json:"dir" yaml:"dir"`
+	NoSync bool   `json:"nosync" yaml:"nosync"`
 }
 
 func main() {
@@ -33,6 +37,9 @@ func run(ctx context.Context, args []string) error {
 
 	fset := flag.NewFlagSet("didis", flag.ContinueOnError)
 	fset.IntVar(&cfg.Port, "port", 26379, "port on which server will start")
+	fset.BoolVar(&cfg.Inmem, "inmem", false, "store data only in memory (gone after server stop)")
+	fset.StringVar(&cfg.Dir, "dir", ".didis", "dir where data will be located")
+	fset.BoolVar(&cfg.NoSync, "nosync", false, "do not call sync after each write")
 
 	if err := fset.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -42,7 +49,21 @@ func run(ctx context.Context, args []string) error {
 	}
 
 	var store core.Store
-	store = inmem.New()
+	var err error
+
+	if cfg.Inmem {
+		store = inmem.New()
+	} else {
+		dbCfg := ondisk.Config{
+			Dir:    cfg.Dir,
+			NoSync: cfg.NoSync,
+		}
+
+		store, err = ondisk.Open(dbCfg)
+		if err != nil {
+			return fmt.Errorf("open db: %w", err)
+		}
+	}
 
 	srvCfg := server.Config{
 		Addr:  "localhost:" + strconv.Itoa(cfg.Port),
