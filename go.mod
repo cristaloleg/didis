@@ -7,7 +7,7 @@ require (
 	github.com/cristalhq/appx v0.6.1
 	github.com/cristalhq/synx v0.8.0
 	github.com/cristalhq/testt v0.0.1
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.2
 	github.com/tidwall/redcon v1.6.2
 )
 
